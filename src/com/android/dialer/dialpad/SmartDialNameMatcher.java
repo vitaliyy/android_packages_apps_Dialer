@@ -47,6 +47,17 @@ public class SmartDialNameMatcher {
         '9', '9', '9', '9' // W,X,Y,Z -> 9
     };
 
+    public static final char[] RUSSIAN_LETTERS_TO_DIGITS = {
+        '2', '2', '2', '2', // абвг -> 2
+        '3', '3', '3', '3', // дежз -> 3
+        '4', '4', '4', '4', // ийкл -> 4
+        '5', '5', '5', '5', // мноп -> 5
+        '6', '6', '6', '6', // рсту -> 6
+        '7', '7', '7', '7', // фхцч -> 7
+        '8', '8', '8', '8', // шщъы -> 8
+        '9', '9', '9', '9'  // ьэюя -> 9
+    };
+
     // Whether or not we allow matches like 57 - (J)ohn (S)mith
     private static final boolean ALLOW_INITIAL_MATCH = true;
 
@@ -411,10 +422,44 @@ public class SmartDialNameMatcher {
             case 'X': return 'x';
             case 'Y': return 'y';
             case 'Z': return 'z';
+		        case 'А': return 'а';
+		        case 'Б': return 'б';
+		        case 'В': return 'в';
+		        case 'Г': return 'г';
+		        case 'Д': return 'д';
+		        case 'Е': return 'е';
+		        case 'ё': return 'е';
+		        case 'Ё': return 'е';
+		        case 'Ж': return 'ж';
+		        case 'З': return 'з';
+		        case 'И': return 'и';
+		        case 'Й': return 'й';
+		        case 'К': return 'к';
+		        case 'Л': return 'л';
+		        case 'М': return 'м';
+		        case 'Н': return 'н';
+		        case 'О': return 'о';
+		        case 'П': return 'п';
+		        case 'Р': return 'р';
+		        case 'С': return 'с';
+		        case 'Т': return 'т';
+		        case 'У': return 'у';
+		        case 'Ф': return 'ф';
+		        case 'Х': return 'х';
+		        case 'Ц': return 'ц';
+		        case 'Ч': return 'ч';
+		        case 'Ш': return 'ш';
+		        case 'Щ': return 'щ';
+		        case 'Ъ': return 'ъ';
+		        case 'Ы': return 'ы';
+		        case 'Ь': return 'ь';
+		        case 'Э': return 'э';
+		        case 'Ю': return 'ю';
+		        case 'Я': return 'я';
             default: return c;
         }
     }
-
+    
     private final ArrayList<SmartDialMatchPosition> mMatchPositions = Lists.newArrayList();
 
     public SmartDialNameMatcher(String query) {
@@ -597,6 +642,8 @@ public class SmartDialNameMatcher {
                 if (ch >= 'a' && ch <= 'z') {
                     // a starts at index 0. If ch >= '0' && ch <= '9', we don't have to do anything
                     ch = LATIN_LETTERS_TO_DIGITS[ch - 'a'];
+                } else if (ch >= 'а' && ch <= 'я') {
+                    ch = RUSSIAN_LETTERS_TO_DIGITS[ch - 'а'];
                 }
                 if (ch != query.charAt(queryStart)) {
                     // Failed to match the current character in the query.
@@ -703,7 +750,7 @@ public class SmartDialNameMatcher {
      * Returns true if the character is a lowercase latin character or digit(i.e. non-separator).
      */
     private boolean isLowercaseLatinLetterOrDigit(char ch) {
-        return (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
+        return (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || (ch >= 'а' && ch <= 'я');
     }
 
     public boolean matches(String displayName) {

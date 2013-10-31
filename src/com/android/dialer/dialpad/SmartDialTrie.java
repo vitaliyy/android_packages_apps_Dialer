@@ -67,6 +67,7 @@ public class SmartDialTrie {
     final Node mRoot = new Node();
     private int mSize = 0;
     private final char[] mCharacterMap;
+    private final char[] mCharacterMap2;
     private final boolean mFormatNanp;
 
     private static final int LAST_TOKENS_FOR_INITIALS = 2;
@@ -77,7 +78,7 @@ public class SmartDialTrie {
 
     public SmartDialTrie() {
         // Use the latin letter to digit map by default if none provided
-        this(SmartDialNameMatcher.LATIN_LETTERS_TO_DIGITS, false);
+        this(SmartDialNameMatcher.LATIN_LETTERS_TO_DIGITS, SmartDialNameMatcher.RUSSIAN_LETTERS_TO_DIGITS, false);
     }
 
     /**
@@ -88,7 +89,7 @@ public class SmartDialTrie {
      */
     @VisibleForTesting
     public SmartDialTrie(boolean formatNanp) {
-        this(SmartDialNameMatcher.LATIN_LETTERS_TO_DIGITS, formatNanp);
+        this(SmartDialNameMatcher.LATIN_LETTERS_TO_DIGITS, SmartDialNameMatcher.RUSSIAN_LETTERS_TO_DIGITS, formatNanp);
     }
 
     /**
@@ -99,7 +100,19 @@ public class SmartDialTrie {
      * such that numbers are automatically broken up by country prefix and area code.
      */
     public SmartDialTrie(char[] charMap, boolean formatNanp) {
+        this(charMap, SmartDialNameMatcher.RUSSIAN_LETTERS_TO_DIGITS, formatNanp);
+    }
+
+    /**
+     * Creates a new SmartDialTrie.
+     *
+     * @param charMap Mapping of characters to digits to use when inserting names into the trie.
+     * @param formatNanp True if inserted numbers are to be treated as NANP numbers
+     * such that numbers are automatically broken up by country prefix and area code.
+     */
+    public SmartDialTrie(char[] charMap, char[] charMap2, boolean formatNanp) {
         mCharacterMap = charMap;
+        mCharacterMap2 = charMap2;
         mFormatNanp = formatNanp;
     }
 
@@ -265,17 +278,20 @@ public class SmartDialTrie {
         boolean atSeparator = true;
         for (int i = 0; i < length; i++) {
             c = SmartDialNameMatcher.remapAccentedChars(chars.charAt(i));
-            if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9') {
+            if (c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c >= 'а' && c <= 'я') {
                 if (atSeparator) {
                     tokenCount++;
                 }
                 atSeparator = false;
-                if (c <= '9') {
+                if (c >= '0' && c <= '9') {
                     // 0-9
                     result[i] = (byte) (c - '0');
-                } else {
+                } else if (c >= 'a' && c <= 'z') {
                     // a-z
                     result[i] = (byte) (mCharacterMap[c - 'a'] - '0');
+                } else if (c >= 'а' && c <= 'я') {
+                    // а-я
+                    result[i] = (byte) (mCharacterMap2[c - 'а'] - '0');
                 }
             } else {
                 // Found the last character of the current token
