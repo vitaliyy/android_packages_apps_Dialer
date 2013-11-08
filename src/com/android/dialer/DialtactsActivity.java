@@ -886,7 +886,7 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
     @Override
     public void onDialpadQueryChanged(String query) {
         final String normalizedQuery = SmartDialNameMatcher.normalizeNumber(query,
-                SmartDialNameMatcher.LATIN_SMART_DIAL_MAP);
+                SmartDialNameMatcher.SMART_DIAL_MAP);
         if (!TextUtils.equals(mSearchView.getText(), normalizedQuery)) {
             if (DEBUG) {
                 Log.d(TAG, "onDialpadQueryChanged - new query: " + query);
